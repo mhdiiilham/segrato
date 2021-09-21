@@ -2,6 +2,7 @@ package main
 
 import (
 	"fmt"
+	"strconv"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/mhdiiilham/segrato/config"
@@ -18,8 +19,7 @@ func main() {
 		panic(configErr)
 	}
 
-	fmt.Println("MongoDB URI:", configuration.MongoDBURI)
-	fmt.Println("Symmetric Key:", configuration.PasetoSymmetricKey)
+	fmt.Println("Production Mode Enabled:", strconv.FormatBool(configuration.Production))
 
 	mongoDB, err := db.NewMongoDBConnection(configuration.MongoDBURI)
 	if err != nil {
@@ -39,6 +39,7 @@ func main() {
 
 	userRouter := v1.Group("/users")
 	userRouter.Post("/", userHandler.RegisterUser)
+	userRouter.Post("/login", userHandler.Login)
 
 	app.Listen(":8080")
 

@@ -12,6 +12,7 @@ import (
 
 type Repository interface {
 	Create(ctx context.Context, username, plainPassword string) (user User, err error)
+	FindOne(ctx context.Context, username string) (user User, err error)
 }
 
 type repository struct {
@@ -51,6 +52,11 @@ func (r repository) Create(ctx context.Context, username, plainPassword string) 
 	}
 
 	user.ID = oid
+	return
+}
+
+func (r repository) FindOne(ctx context.Context, username string) (user User, err error) {
+	err = r.collection.FindOne(ctx, bson.M{"username": username}).Decode(&user)
 	return
 }
 
