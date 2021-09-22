@@ -31,10 +31,12 @@ func (h handler) PostMessage(ctx *fiber.Ctx) error {
 	}
 
 	msg := Message{
-		UserID:    payload.UserID,
-		Message:   payload.Message,
-		Replied:   []RepliedMessage{},
-		CreatedAt: time.Now(),
+		SenderID:   payload.SenderID,
+		SenderName: payload.SenderName,
+		UserID:     payload.UserID,
+		Message:    payload.Message,
+		Replied:    []RepliedMessage{},
+		CreatedAt:  time.Now(),
 	}
 
 	_, err := h.messageRepository.Create(ctx.Context(), msg)

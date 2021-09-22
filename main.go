@@ -2,9 +2,11 @@ package main
 
 import (
 	"fmt"
+	"log"
 	"strconv"
 
 	"github.com/gofiber/fiber/v2"
+	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/mhdiiilham/segrato/config"
 	"github.com/mhdiiilham/segrato/message"
 	"github.com/mhdiiilham/segrato/pkg/db"
@@ -28,6 +30,12 @@ func main() {
 	}
 
 	app := fiber.New()
+
+	app.Use(cors.New(cors.Config{
+		AllowOrigins: "*",
+		AllowHeaders: "*",
+	}))
+
 	api := app.Group("/api")
 	v1 := api.Group("/v1")
 
@@ -43,6 +51,7 @@ func main() {
 	messageHandler := message.NewHandler(messageRepository)
 
 	userRouter := v1.Group("/users")
+	userRouter.Get(":userid", userHandler.GetUser)
 	userRouter.Post("/", userHandler.RegisterUser)
 	userRouter.Post("/login", userHandler.Login)
 	userRouter.Get("/:id/messages", messageHandler.GetUserMessages)
@@ -51,5 +60,5 @@ func main() {
 	messageRouter.Post("/", messageHandler.PostMessage)
 	messageRouter.Patch(":id", messageHandler.RepliedMessage)
 
-	app.Listen(":8080")
+	log.Fatal(app.Listen(":8081"))
 }
