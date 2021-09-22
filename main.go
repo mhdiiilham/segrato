@@ -6,6 +6,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/mhdiiilham/segrato/config"
+	"github.com/mhdiiilham/segrato/message"
 	"github.com/mhdiiilham/segrato/pkg/db"
 	"github.com/mhdiiilham/segrato/pkg/token"
 	"github.com/mhdiiilham/segrato/user"
@@ -37,10 +38,18 @@ func main() {
 	userRepository := user.NewRepository(userCollection)
 	userHandler := user.NewHandler(userRepository, tokenService)
 
+	messageCollection := database.Collection("message")
+	messageRepository := message.NewRepository(messageCollection)
+	messageHandler := message.NewHandler(messageRepository)
+
 	userRouter := v1.Group("/users")
 	userRouter.Post("/", userHandler.RegisterUser)
 	userRouter.Post("/login", userHandler.Login)
+	userRouter.Get("/:id/messages", messageHandler.GetUserMessages)
+
+	messageRouter := v1.Group("/messages")
+	messageRouter.Post("/", messageHandler.PostMessage)
+	messageRouter.Patch(":id", messageHandler.RepliedMessage)
 
 	app.Listen(":8080")
-
 }
