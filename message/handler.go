@@ -67,9 +67,10 @@ func (h handler) GetUserMessages(ctx *fiber.Ctx) error {
 	}
 
 	return ctx.Status(http.StatusOK).JSON(GetUserMessagesResponse{
-		Code:     http.StatusOK,
-		UserID:   userID,
-		Messages: messages,
+		Code:          http.StatusOK,
+		UserID:        userID,
+		Messages:      messages,
+		TotalMessages: len(messages),
 	})
 }
 

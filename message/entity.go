@@ -30,7 +30,8 @@ type PostMessageRequest struct {
 }
 
 type GetUserMessagesResponse struct {
-	Code     int       `json:"code"`
-	UserID   string    `json:"userId"`
-	Messages []Message `json:"messages"`
+	Code          int       `json:"code"`
+	UserID        string    `json:"userId"`
+	Messages      []Message `json:"messages"`
+	TotalMessages int       `json:"totalMessage"`
 }
