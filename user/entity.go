@@ -22,6 +22,7 @@ type RegisterUserResponse struct {
 }
 
 type RegisterUserPayload struct {
-	Username string `json:"username"`
-	Password string `json:"password"`
+	Username     string   `json:"username"`
+	Password     string   `json:"password"`
+	BlockedWords []string `json:"BlockedWords"`
 }
