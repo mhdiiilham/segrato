@@ -13,6 +13,7 @@ type Message struct {
 	UserID     string             `bson:"userId" json:"userId"`
 	Message    string             `bson:"message" json:"message"`
 	Replied    []RepliedMessage   `bson:"replied" json:"replied"`
+	Show       bool               `bson:"show" json:"show"`
 	CreatedAt  time.Time          `bson:"createdAt" json:"createdAt"`
 }
 
