@@ -14,7 +14,6 @@ type Repository interface {
 	Create(ctx context.Context, username, plainPassword string, blockWords []string) (user User, err error)
 	FindOne(ctx context.Context, username string) (user User, err error)
 	FindByID(ctx context.Context, id string) (user User, err error)
-	UpdateBlockWords(ctx context.Context, words []string) (err error)
 }
 
 type repository struct {
