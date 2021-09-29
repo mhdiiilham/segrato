@@ -9,14 +9,12 @@ import (
 )
 
 type handler struct {
-	messageRepository Repository
-	service           Service
+	service Service
 }
 
-func NewHandler(messageRepository Repository, service Service) *handler {
+func NewHandler(service Service) *handler {
 	return &handler{
-		messageRepository: messageRepository,
-		service:           service,
+		service: service,
 	}
 }
 

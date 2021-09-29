@@ -7,6 +7,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/gofiber/fiber/v2/middleware/cors"
+	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/mhdiiilham/segrato/config"
 	"github.com/mhdiiilham/segrato/message"
 	"github.com/mhdiiilham/segrato/pkg/db"
@@ -37,6 +38,11 @@ func main() {
 		AllowHeaders: "*",
 	}))
 
+	app.Use(logger.New(logger.Config{
+		Format:     "${pid} ${status} - ${method} ${path}\n",
+		TimeFormat: "02-Jan-2006",
+		TimeZone:   "Asia/Jakarta",
+	}))
 	api := app.Group("/api")
 	v1 := api.Group("/v1")
 
@@ -52,7 +58,7 @@ func main() {
 	messageService := service.NewMessageService(messageRepository, userRepository)
 
 	userHandler := user.NewHandler(userRepository, tokenService)
-	messageHandler := message.NewHandler(messageRepository, messageService)
+	messageHandler := message.NewHandler(messageService)
 
 	userRouter := v1.Group("/users")
 	userRouter.Get(":userid", userHandler.GetUser)
