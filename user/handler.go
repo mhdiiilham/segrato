@@ -42,7 +42,7 @@ func (h Handler) RegisterUser(c *fiber.Ctx) error {
 		})
 	}
 
-	user, err := h.userRepository.Create(context.Background(), payload.Username, payload.Password)
+	user, err := h.userRepository.Create(context.Background(), payload.Username, payload.Password, payload.BlockedWords)
 	if err != nil {
 		if err.Error() == "username already taken" {
 			return c.Status(http.StatusBadRequest).JSON(struct {

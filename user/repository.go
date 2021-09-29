@@ -11,9 +11,10 @@ import (
 )
 
 type Repository interface {
-	Create(ctx context.Context, username, plainPassword string) (user User, err error)
+	Create(ctx context.Context, username, plainPassword string, blockWords []string) (user User, err error)
 	FindOne(ctx context.Context, username string) (user User, err error)
 	FindByID(ctx context.Context, id string) (user User, err error)
+	UpdateBlockWords(ctx context.Context, words []string) (err error)
 }
 
 type repository struct {
@@ -26,9 +27,12 @@ func NewRepository(collection *mongo.Collection) Repository {
 	}
 }
 
-func (r repository) Create(ctx context.Context, username, plainPassword string) (user User, err error) {
+func (r repository) Create(ctx context.Context, username, plainPassword string, blockWords []string) (user User, err error) {
 	var insertResult *mongo.InsertOneResult
 	var bytePassword []byte
+	var blockedWords []string
+
+	blockedWords = append(blockedWords, blockWords...)
 	bytePassword, err = bcrypt.GenerateFromPassword([]byte(plainPassword), bcrypt.MinCost)
 	if err != nil {
 		return
@@ -42,6 +46,7 @@ func (r repository) Create(ctx context.Context, username, plainPassword string) 
 	password := string(bytePassword)
 	user.Username = username
 	user.Password = password
+	user.BlockedWords = blockedWords
 	insertResult, err = r.collection.InsertOne(ctx, user)
 	if err != nil {
 		return
