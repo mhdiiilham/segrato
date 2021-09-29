@@ -14,6 +14,7 @@ type Repository interface {
 	Create(ctx context.Context, username, plainPassword string, blockWords []string) (user User, err error)
 	FindOne(ctx context.Context, username string) (user User, err error)
 	FindByID(ctx context.Context, id string) (user User, err error)
+	GetUserBlockedWords(ctx context.Context, userID string) (blockedWords []string, err error)
 }
 
 type repository struct {
@@ -74,5 +75,9 @@ func (r repository) checkUniqueness(ctx context.Context, username string) (uniqu
 func (r repository) FindByID(ctx context.Context, id string) (user User, err error) {
 	objID, _ := primitive.ObjectIDFromHex(id)
 	err = r.collection.FindOne(ctx, bson.M{"_id": objID}).Decode(&user)
+	return
+}
+
+func (r repository) GetUserBlockedWords(ctx context.Context, userID string) (blockedWords []string, err error) {
 	return
 }

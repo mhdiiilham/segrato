@@ -9,13 +9,6 @@ import (
 	"gopkg.in/mgo.v2/bson"
 )
 
-type Repository interface {
-	Create(ctx context.Context, msg Message) (ID string, err error)
-	FindOne(ctx context.Context, id string) (msg Message, err error)
-	FindByUserID(ctx context.Context, userID string) (messages []Message, err error)
-	UpdateOne(ctx context.Context, msg Message) (err error)
-}
-
 type repository struct {
 	collection *mongo.Collection
 }

@@ -11,6 +11,7 @@ import (
 	"github.com/mhdiiilham/segrato/message"
 	"github.com/mhdiiilham/segrato/pkg/db"
 	"github.com/mhdiiilham/segrato/pkg/token"
+	service "github.com/mhdiiilham/segrato/services"
 	"github.com/mhdiiilham/segrato/user"
 )
 
@@ -44,11 +45,14 @@ func main() {
 	database := mongoDB.Database(configuration.Database)
 	userCollection := database.Collection("user")
 	userRepository := user.NewRepository(userCollection)
-	userHandler := user.NewHandler(userRepository, tokenService)
 
 	messageCollection := database.Collection("message")
 	messageRepository := message.NewRepository(messageCollection)
-	messageHandler := message.NewHandler(messageRepository)
+
+	messageService := service.NewMessageService(messageRepository, userRepository)
+
+	userHandler := user.NewHandler(userRepository, tokenService)
+	messageHandler := message.NewHandler(messageRepository, messageService)
 
 	userRouter := v1.Group("/users")
 	userRouter.Get(":userid", userHandler.GetUser)

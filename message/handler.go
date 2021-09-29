@@ -10,11 +10,13 @@ import (
 
 type handler struct {
 	messageRepository Repository
+	service           Service
 }
 
-func NewHandler(messageRepository Repository) *handler {
+func NewHandler(messageRepository Repository, service Service) *handler {
 	return &handler{
 		messageRepository: messageRepository,
+		service:           service,
 	}
 }
 
@@ -39,7 +41,7 @@ func (h handler) PostMessage(ctx *fiber.Ctx) error {
 		CreatedAt:  time.Now(),
 	}
 
-	_, err := h.messageRepository.Create(ctx.Context(), msg)
+	_, err := h.service.PostMessage(ctx.Context(), msg)
 	if err != nil {
 		return ctx.Status(http.StatusInternalServerError).JSON(struct {
 			Code    int    `json:"code"`
@@ -55,7 +57,7 @@ func (h handler) PostMessage(ctx *fiber.Ctx) error {
 
 func (h handler) GetUserMessages(ctx *fiber.Ctx) error {
 	userID := ctx.Params("id")
-	messages, err := h.messageRepository.FindByUserID(ctx.Context(), userID)
+	messages, err := h.service.GetUserMessages(ctx.Context(), userID)
 	if err != nil {
 		return ctx.Status(http.StatusInternalServerError).JSON(struct {
 			Code    int    `json:"code"`
@@ -87,7 +89,11 @@ func (h handler) RepliedMessage(ctx *fiber.Ctx) error {
 		})
 	}
 
-	msg, err := h.messageRepository.FindOne(ctx.Context(), msgID)
+	msg, err := h.service.ReplyToAMessage(ctx.Context(), msgID, RepliedMessage{
+		Message:    payload.Message,
+		SenderID:   payload.SenderID,
+		SenderName: payload.SenderName,
+	})
 	if err != nil {
 		if err == mongo.ErrNoDocuments {
 			return ctx.Status(http.StatusBadRequest).JSON(struct {
@@ -107,17 +113,5 @@ func (h handler) RepliedMessage(ctx *fiber.Ctx) error {
 			Message: "Internal Server Error",
 		})
 	}
-
-	msg.Replied = append(msg.Replied, RepliedMessage{Message: payload.Message, SenderID: payload.SenderID, SenderName: payload.SenderName})
-	if err := h.messageRepository.UpdateOne(ctx.Context(), msg); err != nil {
-		return ctx.Status(http.StatusInternalServerError).JSON(struct {
-			Code    int    `json:"code"`
-			Message string `json:"message"`
-		}{
-			Code:    http.StatusInternalServerError,
-			Message: "Internal Server Error",
-		})
-	}
-
 	return ctx.Status(http.StatusOK).JSON(msg)
 }
