@@ -2,20 +2,11 @@ package user
 
 import (
 	"context"
-	"errors"
 
 	"go.mongodb.org/mongo-driver/bson"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
-	"golang.org/x/crypto/bcrypt"
 )
-
-type Repository interface {
-	Create(ctx context.Context, username, plainPassword string, blockWords []string) (user User, err error)
-	FindOne(ctx context.Context, username string) (user User, err error)
-	FindByID(ctx context.Context, id string) (user User, err error)
-	GetUserBlockedWords(ctx context.Context, userID string) (blockedWords []string, err error)
-}
 
 type repository struct {
 	collection *mongo.Collection
@@ -27,38 +18,21 @@ func NewRepository(collection *mongo.Collection) Repository {
 	}
 }
 
-func (r repository) Create(ctx context.Context, username, plainPassword string, blockWords []string) (user User, err error) {
+func (r repository) Create(ctx context.Context, u User) (User, error) {
 	var insertResult *mongo.InsertOneResult
-	var bytePassword []byte
-	var blockedWords []string
 
-	blockedWords = append(blockedWords, blockWords...)
-	bytePassword, err = bcrypt.GenerateFromPassword([]byte(plainPassword), bcrypt.MinCost)
+	insertResult, err := r.collection.InsertOne(ctx, &u)
 	if err != nil {
-		return
-	}
-
-	if !r.checkUniqueness(ctx, username) {
-		err = errors.New("username already taken")
-		return
-	}
-
-	password := string(bytePassword)
-	user.Username = username
-	user.Password = password
-	user.BlockedWords = blockedWords
-	insertResult, err = r.collection.InsertOne(ctx, user)
-	if err != nil {
-		return
+		return u, err
 	}
 
 	oid, ok := insertResult.InsertedID.(primitive.ObjectID)
 	if !ok {
-		return
+		return u, err
 	}
 
-	user.ID = oid
-	return
+	u.ID = oid
+	return u, nil
 }
 
 func (r repository) FindOne(ctx context.Context, username string) (user User, err error) {
@@ -66,7 +40,7 @@ func (r repository) FindOne(ctx context.Context, username string) (user User, er
 	return
 }
 
-func (r repository) checkUniqueness(ctx context.Context, username string) (unique bool) {
+func (r repository) CheckUniqueness(ctx context.Context, username string) (unique bool) {
 	unique = false
 	err := r.collection.FindOne(ctx, bson.M{"username": username}).Err()
 	return err == mongo.ErrNoDocuments

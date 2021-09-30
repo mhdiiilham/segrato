@@ -9,6 +9,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/mhdiiilham/segrato/config"
+	"github.com/mhdiiilham/segrato/handler"
 	"github.com/mhdiiilham/segrato/message"
 	"github.com/mhdiiilham/segrato/pkg/db"
 	"github.com/mhdiiilham/segrato/pkg/token"
@@ -46,8 +47,6 @@ func main() {
 	api := app.Group("/api")
 	v1 := api.Group("/v1")
 
-	tokenService := token.TokenService{Config: &configuration}
-
 	database := mongoDB.Database(configuration.Database)
 	userCollection := database.Collection("user")
 	userRepository := user.NewRepository(userCollection)
@@ -55,15 +54,18 @@ func main() {
 	messageCollection := database.Collection("message")
 	messageRepository := message.NewRepository(messageCollection)
 
+	tokenService := token.TokenService{Config: &configuration}
 	messageService := service.NewMessageService(messageRepository, userRepository)
+	userService := service.NewUserService(userRepository, tokenService)
 
-	userHandler := user.NewHandler(userRepository, tokenService)
+	oldUserHandler := user.NewHandler(userRepository, tokenService)
+	userHandler := handler.NewUserHandler(userService)
 	messageHandler := message.NewHandler(messageService)
 
 	userRouter := v1.Group("/users")
-	userRouter.Get(":userid", userHandler.GetUser)
+	userRouter.Get(":userid", oldUserHandler.GetUser)
 	userRouter.Post("/", userHandler.RegisterUser)
-	userRouter.Post("/login", userHandler.Login)
+	userRouter.Post("/login", oldUserHandler.Login)
 	userRouter.Get("/:id/messages", messageHandler.GetUserMessages)
 
 	messageRouter := v1.Group("/messages")
