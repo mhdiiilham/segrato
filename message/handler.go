@@ -41,6 +41,15 @@ func (h handler) PostMessage(ctx *fiber.Ctx) error {
 
 	_, err := h.service.PostMessage(ctx.Context(), msg)
 	if err != nil {
+		if err.Error() == BannedWord {
+			return ctx.Status(http.StatusBadRequest).JSON(struct {
+				Code    int    `json:"code"`
+				Message string `json:"message"`
+			}{
+				Code:    http.StatusBadRequest,
+				Message: err.Error(),
+			})
+		}
 		return ctx.Status(http.StatusInternalServerError).JSON(struct {
 			Code    int    `json:"code"`
 			Message string `json:"message"`

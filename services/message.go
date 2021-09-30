@@ -2,6 +2,8 @@ package service
 
 import (
 	"context"
+	"errors"
+	"strings"
 
 	"github.com/mhdiiilham/segrato/message"
 	"github.com/mhdiiilham/segrato/user"
@@ -20,6 +22,19 @@ func NewMessageService(messageRepository message.Repository, userRepository user
 }
 
 func (s messageService) PostMessage(ctx context.Context, msg message.Message) (ID string, err error) {
+	userBlockedWords, err := s.userRepository.GetUserBlockedWords(ctx, msg.UserID)
+	if err != nil {
+		return
+	}
+
+	for _, word := range userBlockedWords {
+		// TODO: Need to change this using regex
+		text := strings.ToLower(msg.Message)
+		if blocked := strings.Contains(text, strings.ToLower(word)); blocked {
+			err = errors.New("message contained banned words from user")
+			return
+		}
+	}
 	return s.messageRepository.Create(ctx, msg)
 }
 

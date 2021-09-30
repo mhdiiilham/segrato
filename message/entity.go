@@ -36,3 +36,7 @@ type GetUserMessagesResponse struct {
 	Messages      []Message `json:"messages"`
 	TotalMessages int       `json:"totalMessage"`
 }
+
+const (
+	BannedWord string = "message contained banned words from user"
+)
