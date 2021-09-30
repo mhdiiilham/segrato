@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"errors"
+	"regexp"
 	"strings"
 
 	"github.com/mhdiiilham/segrato/message"
@@ -27,13 +28,11 @@ func (s messageService) PostMessage(ctx context.Context, msg message.Message) (I
 		return
 	}
 
-	for _, word := range userBlockedWords {
-		// TODO: Need to change this using regex
-		text := strings.ToLower(msg.Message)
-		if blocked := strings.Contains(text, strings.ToLower(word)); blocked {
-			err = errors.New("message contained banned words from user")
-			return
-		}
+	words := strings.Join(userBlockedWords, "|")
+	re := regexp.MustCompile(`(?i)` + words)
+	if blocked := re.MatchString(msg.Message); blocked {
+		err = errors.New("message contained banned words from user")
+		return
 	}
 	return s.messageRepository.Create(ctx, msg)
 }
