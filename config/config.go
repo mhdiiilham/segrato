@@ -4,6 +4,7 @@ import "github.com/spf13/viper"
 
 type Config struct {
 	Production         bool   `mapstructure:"production"`
+	Port               string `mapstructure:"port"`
 	MongoDBURI         string `mapstructure:"mongoDBUri"`
 	PasetoSymmetricKey string `mapstructure:"pasetoSymmentricKey"`
 	Database           string `mapstructure:"database"`
