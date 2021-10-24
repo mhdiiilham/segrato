@@ -45,7 +45,7 @@ func (s *server) ServeHTTP(ctx context.Context, srv *http.Server) error {
 	}()
 
 	// Run the server. This will block until the provided context is closed.
-	if err := srv.Serve(s.listener); err != nil && errors.Is(err, http.ErrServerClosed) {
+	if err := srv.Serve(s.listener); err != nil && !errors.Is(err, http.ErrServerClosed) {
 		return fmt.Errorf("failed to serve: %w", err)
 	}
 
