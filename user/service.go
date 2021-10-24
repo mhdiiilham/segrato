@@ -55,6 +55,10 @@ func (s *service) RegisterUser(ctx context.Context, username, plainPassword stri
 	return
 }
 
-func (s *service) GetUser(ctx context.Context, username string) (u User, err error) {
+func (s *service) GetUser(ctx context.Context, userID string) (u User, err error) {
+	u, err = s.userRepository.FindByID(ctx, userID)
+	if err != nil {
+		return
+	}
 	return
 }

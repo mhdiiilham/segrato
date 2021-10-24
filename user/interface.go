@@ -12,5 +12,5 @@ type Repository interface {
 
 type Service interface {
 	RegisterUser(ctx context.Context, username, plainPassword string, blockWords []string) (user User, accessToken string, err error)
-	GetUser(ctx context.Context, username string) (user User, err error)
+	GetUser(ctx context.Context, id string) (user User, err error)
 }
