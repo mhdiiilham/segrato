@@ -1,4 +1,4 @@
 .PHONY: all
 
 run:
-	go run *.go
+	go run cmd/main.go
