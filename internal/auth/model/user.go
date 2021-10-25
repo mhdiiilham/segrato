@@ -13,3 +13,14 @@ type ResgisterUserResponse struct {
 	AccessToken string    `json:"accessToken"`
 	User        user.User `json:"user"`
 }
+
+type LoginRequest struct {
+	Username string `json:"username"`
+	Password string `json:"password"`
+}
+
+type LoginResponse struct {
+	ID          string    `json:"id"`
+	AccessToken string    `json:"accessToken"`
+	User        user.User `json:"user"`
+}

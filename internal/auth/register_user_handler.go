@@ -5,7 +5,6 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/mhdiiilham/segrato/internal/auth/model"
-	"github.com/mhdiiilham/segrato/user"
 	"github.com/sirupsen/logrus"
 )
 
@@ -44,7 +43,7 @@ func (s *Server) RegisterUser(c *fiber.Ctx) error {
 	}
 
 	logrus.Infof("new user created with id %s", newUser.ID.Hex())
-	return c.Status(http.StatusOK).JSON(user.RegisterUserResponse{
+	return c.Status(http.StatusOK).JSON(model.ResgisterUserResponse{
 		ID:          newUser.ID.Hex(),
 		User:        newUser,
 		AccessToken: accessToken,

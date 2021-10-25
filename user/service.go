@@ -62,3 +62,22 @@ func (s *service) GetUser(ctx context.Context, userID string) (u User, err error
 	}
 	return
 }
+
+func (s *service) Login(ctx context.Context, username, password string) (user User, accessToken string, err error) {
+	user, err = s.userRepository.FindOne(ctx, username)
+	if err != nil {
+		return
+	}
+
+	if err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
+		err = INVALID_USERNAME_PASSWORD
+		return
+	}
+
+	accessToken, err = s.token.SignPayload(token.TokenPayload{ID: user.ID.Hex(), Username: user.Username, IsPremium: user.IsPremium})
+	if err != nil {
+		return
+	}
+
+	return
+}

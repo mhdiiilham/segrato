@@ -48,6 +48,7 @@ func (s *Server) Routes(ctx context.Context) http.Handler {
 
 	v1.Post("/users", s.RegisterUser)
 	v1.Get("/users/:userid", s.GetUser)
+	v1.Post("users/login", s.Login)
 
 	logrus.Info("API routes ready")
 	return adaptor.FiberApp(app)

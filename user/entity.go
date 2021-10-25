@@ -1,6 +1,7 @@
 package user
 
 import (
+	"errors"
 	"time"
 
 	"go.mongodb.org/mongo-driver/bson/primitive"
@@ -15,14 +16,6 @@ type User struct {
 	PremiumExpiredAt time.Time          `bson:"premiumExpiredAt" json:"premiumExpiredAt"`
 }
 
-type RegisterUserResponse struct {
-	ID          string `json:"id"`
-	AccessToken string `json:"accessToken"`
-	User        User   `json:"user"`
-}
-
-type RegisterUserPayload struct {
-	Username     string   `json:"username"`
-	Password     string   `json:"password"`
-	BlockedWords []string `json:"BlockedWords"`
-}
+var (
+	INVALID_USERNAME_PASSWORD error = errors.New("username or password is wrong")
+)
