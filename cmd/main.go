@@ -10,7 +10,7 @@ import (
 	"github.com/mhdiiilham/segrato/pkg/db"
 	"github.com/mhdiiilham/segrato/pkg/server"
 	"github.com/mhdiiilham/segrato/pkg/token"
-	"github.com/mhdiiilham/segrato/services/api"
+	"github.com/mhdiiilham/segrato/service/api"
 	"github.com/mhdiiilham/segrato/user"
 	"github.com/sirupsen/logrus"
 )
