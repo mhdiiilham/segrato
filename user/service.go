@@ -28,6 +28,10 @@ func (s *service) RegisterUser(ctx context.Context, username, plainPassword stri
 		return
 	}
 
+	if len(blockWords) < 1 {
+		blockWords = []string{}
+	}
+
 	bytePassword, err = bcrypt.GenerateFromPassword([]byte(plainPassword), bcrypt.MinCost)
 	if err != nil {
 		return
