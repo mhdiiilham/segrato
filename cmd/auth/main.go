@@ -62,7 +62,7 @@ func realMain(ctx context.Context) error {
 		return err
 	}
 
-	srv, err := server.New(cfg.Port.Authm)
+	srv, err := server.New(cfg.Port.Auth)
 	if err != nil {
 		return err
 	}

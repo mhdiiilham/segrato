@@ -1,7 +1,10 @@
-.PHONY: all
+.PHONY: all auth game tidy
 
-run-auth:
+auth:
 	go run cmd/auth/main.go
+
+game:
+	go run cmd/game/main.go
 
 tidy:
 	go mod tidy
