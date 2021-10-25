@@ -1,10 +1,10 @@
-package api
+package auth
 
 import (
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/mhdiiilham/segrato/service/api/model"
+	"github.com/mhdiiilham/segrato/internal/auth/model"
 	"github.com/mhdiiilham/segrato/user"
 	"github.com/sirupsen/logrus"
 )

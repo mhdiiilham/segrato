@@ -2,15 +2,14 @@ package main
 
 import (
 	"context"
-	"fmt"
 	"os/signal"
 	"syscall"
 
 	"github.com/mhdiiilham/segrato/config"
+	"github.com/mhdiiilham/segrato/internal/auth"
 	"github.com/mhdiiilham/segrato/pkg/db"
 	"github.com/mhdiiilham/segrato/pkg/server"
 	"github.com/mhdiiilham/segrato/pkg/token"
-	"github.com/mhdiiilham/segrato/service/api"
 	"github.com/mhdiiilham/segrato/user"
 	"github.com/sirupsen/logrus"
 )
@@ -41,9 +40,9 @@ func main() {
 }
 
 func realMain(ctx context.Context) error {
-	cfg, configErr := config.ReadConfig()
-	if configErr != nil {
-		return fmt.Errorf("error initializing config: %w", configErr)
+	cfg, cfgErr := config.ReadConfig()
+	if cfgErr != nil {
+		return cfgErr
 	}
 
 	mongoDB, err := db.NewMongoDBConnection(cfg.MongoDBURI)
@@ -58,7 +57,7 @@ func realMain(ctx context.Context) error {
 	tokenService := token.TokenService{Config: &cfg}
 	userService := user.NewService(userRepository, tokenService)
 
-	segratoAPI, err := api.NewServer(cfg, userService)
+	segratoAPI, err := auth.NewServer(cfg, userService)
 	if err != nil {
 		return err
 	}
