@@ -62,12 +62,12 @@ func realMain(ctx context.Context) error {
 		return err
 	}
 
-	srv, err := server.New(cfg.Port)
+	srv, err := server.New(cfg.Port.Authm)
 	if err != nil {
 		return err
 	}
 
-	logrus.Infof("listening on: %v", cfg.Port)
+	logrus.Infof("listening on: %v", cfg.Port.Auth)
 	return srv.ServeHTTPHandler(ctx, segratoAPI.Routes(ctx))
 
 }
