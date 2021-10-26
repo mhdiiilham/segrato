@@ -26,7 +26,7 @@ func (s *Server) RegisterUser(c *fiber.Ctx) error {
 		})
 	}
 
-	newUser, accessToken, err := s.userService.RegisterUser(c.Context(), payload.Username, payload.Password, payload.BlockedWords)
+	newUser, accessToken, err := s.userService.RegisterUser(c.Context(), payload.Username, payload.Password)
 	if err != nil {
 		if err.Error() == "username already taken" {
 			return c.Status(http.StatusBadRequest).JSON(model.Error{

@@ -55,15 +55,3 @@ func (r repository) FindByID(ctx context.Context, id string) (user User, err err
 
 	return
 }
-
-func (r repository) GetUserBlockedWords(ctx context.Context, userID string) (blockedWords []string, err error) {
-	var user User
-	objID, _ := primitive.ObjectIDFromHex(userID)
-	err = r.collection.FindOne(ctx, bson.M{"_id": objID}).Decode(&user)
-	if err != nil {
-		return
-	}
-
-	blockedWords = append(blockedWords, user.BlockedWords...)
-	return
-}

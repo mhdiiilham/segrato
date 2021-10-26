@@ -20,16 +20,12 @@ func NewService(userRepository Repository, token token.Service) Service {
 	}
 }
 
-func (s *service) RegisterUser(ctx context.Context, username, plainPassword string, blockWords []string) (u User, accessToken string, err error) {
+func (s *service) RegisterUser(ctx context.Context, username, plainPassword string) (u User, accessToken string, err error) {
 	var bytePassword []byte
 
 	if !s.userRepository.CheckUniqueness(ctx, username) {
 		err = errors.New("username already taken")
 		return
-	}
-
-	if len(blockWords) < 1 {
-		blockWords = []string{}
 	}
 
 	bytePassword, err = bcrypt.GenerateFromPassword([]byte(plainPassword), bcrypt.MinCost)
@@ -40,7 +36,6 @@ func (s *service) RegisterUser(ctx context.Context, username, plainPassword stri
 	password := string(bytePassword)
 	u.Password = password
 	u.Username = username
-	u.BlockedWords = blockWords
 
 	u, err = s.userRepository.Create(ctx, u)
 	if err != nil {
@@ -48,9 +43,8 @@ func (s *service) RegisterUser(ctx context.Context, username, plainPassword stri
 	}
 
 	accessToken, err = s.token.SignPayload(token.TokenPayload{
-		ID:        u.ID.Hex(),
-		Username:  u.Username,
-		IsPremium: u.IsPremium,
+		ID:       u.ID.Hex(),
+		Username: u.Username,
 	})
 	if err != nil {
 		return
@@ -78,7 +72,7 @@ func (s *service) Login(ctx context.Context, username, password string) (user Us
 		return
 	}
 
-	accessToken, err = s.token.SignPayload(token.TokenPayload{ID: user.ID.Hex(), Username: user.Username, IsPremium: user.IsPremium})
+	accessToken, err = s.token.SignPayload(token.TokenPayload{ID: user.ID.Hex(), Username: user.Username})
 	if err != nil {
 		return
 	}

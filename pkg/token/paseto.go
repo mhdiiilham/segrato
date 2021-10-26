@@ -6,9 +6,8 @@ import (
 )
 
 type TokenPayload struct {
-	ID        string
-	Username  string
-	IsPremium bool
+	ID       string
+	Username string
 }
 
 type TokenService struct {
