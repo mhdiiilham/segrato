@@ -69,7 +69,7 @@ func (s *service) Login(ctx context.Context, username, password string) (user Us
 	}
 
 	if err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
-		err = INVALID_USERNAME_PASSWORD
+		err = ErrInvalidUsernamePassword
 		return
 	}
 

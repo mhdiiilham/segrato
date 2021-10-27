@@ -13,5 +13,5 @@ type User struct {
 }
 
 var (
-	INVALID_USERNAME_PASSWORD error = errors.New("username or password is wrong")
+	ErrInvalidUsernamePassword error = errors.New("username or password is wrong")
 )

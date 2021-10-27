@@ -32,11 +32,11 @@ func (s *Server) Login(c *fiber.Ctx) error {
 		if errors.Is(err, mongo.ErrNoDocuments) {
 			return c.Status(http.StatusBadRequest).JSON(model.Error{
 				Code:    http.StatusBadRequest,
-				Message: user.INVALID_USERNAME_PASSWORD.Error(),
+				Message: user.ErrInvalidUsernamePassword.Error(),
 			})
 		}
 
-		if errors.Is(err, user.INVALID_USERNAME_PASSWORD) {
+		if errors.Is(err, user.ErrInvalidUsernamePassword) {
 			return c.Status(http.StatusBadRequest).JSON(model.Error{
 				Code:    http.StatusBadRequest,
 				Message: err.Error(),
