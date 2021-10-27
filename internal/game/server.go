@@ -36,12 +36,11 @@ func (s *server) Routes(ctx context.Context) http.Handler {
 }
 
 func (s *server) CORS(mux http.Handler) http.Handler {
-	logrus.Info("initilizing CORS")
-
 	c := cors.New(cors.Options{
 		AllowedHeaders: []string{"*"},
 	})
 
+	logrus.Info("CORS initializedg")
 	return c.Handler(mux)
 }
 
