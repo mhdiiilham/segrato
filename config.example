@@ -1,0 +1,7 @@
+production: false
+port:
+  auth: 8088
+  game: 8008
+mongoDBUri: ""
+database: ""
+pasetoSymmentricKey: ""
