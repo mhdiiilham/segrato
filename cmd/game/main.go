@@ -22,7 +22,7 @@ func main() {
 	defer func() {
 		done()
 		if r := recover(); r != nil {
-			logrus.Fatalf("application panic: %w", r)
+			logrus.Fatalf("application panic: %v", r)
 		}
 	}()
 
@@ -53,5 +53,5 @@ func realMain(ctx context.Context) error {
 	}
 
 	logrus.Infof("listening game API on: %v", cfg.Port.Game)
-	return srv.ServeHTTPHandler(ctx, gameAPI.Routes(ctx))
+	return srv.ServeHTTPHandler(ctx, gameAPI.CORS(gameAPI.HandlerLogging(gameAPI.Routes(ctx))))
 }

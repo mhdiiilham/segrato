@@ -25,7 +25,7 @@ func main() {
 	defer func() {
 		done()
 		if r := recover(); r != nil {
-			logrus.Fatalf("application panic: %w", r)
+			logrus.Fatalf("application panic: %v", r)
 		}
 	}()
 
