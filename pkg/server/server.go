@@ -8,6 +8,8 @@ import (
 	"net/http"
 	"strconv"
 	"time"
+
+	"github.com/sirupsen/logrus"
 )
 
 type server struct {
@@ -41,6 +43,7 @@ func (s *server) ServeHTTP(ctx context.Context, srv *http.Server) error {
 		shutDownCtx, done := context.WithTimeout(context.Background(), 5*time.Second)
 		defer done()
 
+		logrus.Info("server receive signal to shutdown")
 		errChan <- srv.Shutdown(shutDownCtx)
 	}()
 
