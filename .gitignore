@@ -1,3 +1,5 @@
 vendor
 config.yaml
 .DS_Store
+game-service
+auth-service

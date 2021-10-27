@@ -1,5 +1,9 @@
 .PHONY: all auth game tidy test mock-prepare mock
 
+build:
+	go build -o auth-service cmd/auth/main.go
+	go build -o game-service cmd/game/main.go
+
 auth:
 	go run cmd/auth/main.go
 
