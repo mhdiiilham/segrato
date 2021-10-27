@@ -13,6 +13,7 @@ import (
 	"github.com/mhdiiilham/segrato/pkg/token"
 	"github.com/mhdiiilham/segrato/user"
 	"github.com/sirupsen/logrus"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func main() {
@@ -30,25 +31,26 @@ func main() {
 		}
 	}()
 
-	err := realMain(ctx)
+	mongoDBClient, err := realMain(ctx)
 	done()
 
 	if err != nil {
 		panic(err)
 	}
 
+	logrus.Infof("disconnetiong mongoDB Client %v", mongoDBClient.Disconnect(context.Background()))
 	logrus.Info("successfully shutdown")
 }
 
-func realMain(ctx context.Context) error {
+func realMain(ctx context.Context) (*mongo.Client, error) {
 	cfg, cfgErr := config.ReadConfig()
 	if cfgErr != nil {
-		return cfgErr
+		return nil, cfgErr
 	}
 
 	mongoDB, err := db.NewMongoDBConnection(cfg.MongoDBURI)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	database := mongoDB.Database(cfg.Database)
@@ -61,15 +63,15 @@ func realMain(ctx context.Context) error {
 
 	segratoAPI, err := auth.NewServer(cfg, userService)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	srv, err := server.New(cfg.Port.Auth)
 	if err != nil {
-		return err
+		return nil, err
 	}
 
 	logrus.Infof("listening on: %v", cfg.Port.Auth)
-	return srv.ServeHTTPHandler(ctx, segratoAPI.Routes(ctx))
+	return mongoDB, srv.ServeHTTPHandler(ctx, segratoAPI.Routes(ctx))
 
 }
