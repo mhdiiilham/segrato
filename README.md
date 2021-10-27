@@ -1,3 +1,1 @@
 # segrato
-
-Test Pre Commit
