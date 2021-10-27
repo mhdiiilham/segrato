@@ -1,4 +1,4 @@
-.PHONY: all auth game tidy
+.PHONY: all auth game tidy test
 
 auth:
 	go run cmd/auth/main.go
@@ -8,3 +8,6 @@ game:
 
 tidy:
 	go mod tidy
+
+test:
+	go test -v -race -cover ./...

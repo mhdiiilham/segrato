@@ -3,12 +3,12 @@ package game
 import (
 	"context"
 	"net/http"
+	"os"
 
-	"github.com/gofiber/adaptor/v2"
-	"github.com/gofiber/fiber/v2"
-	"github.com/gofiber/fiber/v2/middleware/cors"
-	"github.com/gofiber/fiber/v2/middleware/logger"
+	"github.com/gorilla/handlers"
+	"github.com/gorilla/mux"
 	"github.com/mhdiiilham/segrato/config"
+	"github.com/rs/cors"
 	"github.com/sirupsen/logrus"
 )
 
@@ -26,19 +26,26 @@ func (s *server) Routes(ctx context.Context) http.Handler {
 	logrus.Info("initializing game API routes'")
 
 	logrus.Info("initializing fiber app and logger")
-	app := fiber.New()
-	app.Use(logger.New(logger.Config{
-		Format:     "${pid} ${status} - ${method} ${path}\n",
-		TimeFormat: "02-Jan-2006",
-		TimeZone:   "Asia/Jakarta",
-	}))
+	mux := mux.NewRouter()
 
-	logrus.Info("setting up fiber cors config")
-	app.Use(cors.New(cors.Config{
-		AllowOrigins: "*",
-		AllowHeaders: "*",
-	}))
+	mux.HandleFunc("/games/health-check", s.HealtCheck).
+		Methods(http.MethodGet)
 
 	logrus.Info("game api is ready")
-	return adaptor.FiberApp(app)
+	return mux
+}
+
+func (s *server) CORS(mux http.Handler) http.Handler {
+	logrus.Info("initilizing CORS")
+
+	c := cors.New(cors.Options{
+		AllowedHeaders: []string{"*"},
+	})
+
+	return c.Handler(mux)
+}
+
+func (s *server) HandlerLogging(mux http.Handler) http.Handler {
+	logrus.Info("initilizing handler logging")
+	return handlers.LoggingHandler(os.Stdout, mux)
 }

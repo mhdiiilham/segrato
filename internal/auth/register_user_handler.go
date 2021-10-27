@@ -35,7 +35,7 @@ func (s *Server) RegisterUser(c *fiber.Ctx) error {
 			})
 		}
 
-		logrus.Errorf("error trying to create new user: %w", err)
+		logrus.Errorf("error trying to create new user: %v", err)
 		return c.Status(http.StatusInternalServerError).JSON(model.Error{
 			Code:    http.StatusInternalServerError,
 			Message: "internal server error",
