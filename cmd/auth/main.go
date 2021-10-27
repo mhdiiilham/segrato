@@ -38,7 +38,7 @@ func main() {
 		panic(err)
 	}
 
-	logrus.Infof("disconnetiong mongoDB Client %v", mongoDBClient.Disconnect(context.Background()))
+	logrus.Infof("disconneting mongoDB Client %v", mongoDBClient.Disconnect(context.Background()))
 	logrus.Info("successfully shutdown")
 }
 
