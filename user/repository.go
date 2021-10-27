@@ -9,10 +9,10 @@ import (
 )
 
 type repository struct {
-	collection *mongo.Collection
+	collection MongoCollection
 }
 
-func NewRepository(collection *mongo.Collection) Repository {
+func NewRepository(collection MongoCollection) Repository {
 	return &repository{
 		collection: collection,
 	}

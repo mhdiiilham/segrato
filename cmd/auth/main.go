@@ -8,6 +8,7 @@ import (
 	"github.com/mhdiiilham/segrato/config"
 	"github.com/mhdiiilham/segrato/internal/auth"
 	"github.com/mhdiiilham/segrato/pkg/db"
+	"github.com/mhdiiilham/segrato/pkg/password"
 	"github.com/mhdiiilham/segrato/pkg/server"
 	"github.com/mhdiiilham/segrato/pkg/token"
 	"github.com/mhdiiilham/segrato/user"
@@ -53,9 +54,10 @@ func realMain(ctx context.Context) error {
 	database := mongoDB.Database(cfg.Database)
 	userCollection := database.Collection("user")
 	userRepository := user.NewRepository(userCollection)
+	passwordService := password.NewService()
 
 	tokenService := token.TokenService{Config: &cfg}
-	userService := user.NewService(userRepository, tokenService)
+	userService := user.NewService(userRepository, tokenService, passwordService)
 
 	segratoAPI, err := auth.NewServer(cfg, userService)
 	if err != nil {

@@ -4,6 +4,7 @@ import (
 	"context"
 	"errors"
 
+	"github.com/mhdiiilham/segrato/pkg/password"
 	"github.com/mhdiiilham/segrato/pkg/token"
 	"golang.org/x/crypto/bcrypt"
 )
@@ -11,30 +12,30 @@ import (
 type service struct {
 	userRepository Repository
 	token          token.Service
+	p              password.Service
 }
 
-func NewService(userRepository Repository, token token.Service) Service {
+func NewService(userRepository Repository, token token.Service, p password.Service) Service {
 	return &service{
 		userRepository: userRepository,
 		token:          token,
+		p:              p,
 	}
 }
 
 func (s *service) RegisterUser(ctx context.Context, username, plainPassword string) (u User, accessToken string, err error) {
-	var bytePassword []byte
-
 	if !s.userRepository.CheckUniqueness(ctx, username) {
 		err = errors.New("username already taken")
 		return
 	}
 
-	bytePassword, err = bcrypt.GenerateFromPassword([]byte(plainPassword), bcrypt.MinCost)
-	if err != nil {
+	hashedPassword, hashedPasswordErr := s.p.HashPassword(plainPassword)
+	if hashedPasswordErr != nil {
+		err = hashedPasswordErr
 		return
 	}
 
-	password := string(bytePassword)
-	u.Password = password
+	u.Password = hashedPassword
 	u.Username = username
 
 	u, err = s.userRepository.Create(ctx, u)
