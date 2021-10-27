@@ -25,5 +25,3 @@ jobs:
     - name: Run Test
       run: make test
 
-    - name: Test Build Services
-      run: make
