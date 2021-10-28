@@ -2,7 +2,6 @@ package user
 
 import (
 	"context"
-	"errors"
 
 	"github.com/mhdiiilham/segrato/pkg/password"
 	"github.com/mhdiiilham/segrato/pkg/token"
@@ -23,9 +22,9 @@ func NewService(userRepository Repository, token token.Service, p password.Servi
 	}
 }
 
-func (s *service) RegisterUser(ctx context.Context, username, plainPassword string) (u User, accessToken string, err error) {
-	if !s.userRepository.CheckUniqueness(ctx, username) {
-		err = errors.New("username already taken")
+func (s *service) RegisterUser(ctx context.Context, username, email, plainPassword string) (u User, accessToken string, err error) {
+	if !s.userRepository.CheckUniqueness(ctx, username, email) {
+		err = ErrUsernameEmailRegistered
 		return
 	}
 
@@ -35,6 +34,7 @@ func (s *service) RegisterUser(ctx context.Context, username, plainPassword stri
 		return
 	}
 
+	u.Email = email
 	u.Password = hashedPassword
 	u.Username = username
 

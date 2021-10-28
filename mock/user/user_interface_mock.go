@@ -38,17 +38,17 @@ func (m *MockRepository) EXPECT() *MockRepositoryMockRecorder {
 }
 
 // CheckUniqueness mocks base method.
-func (m *MockRepository) CheckUniqueness(ctx context.Context, username string) bool {
+func (m *MockRepository) CheckUniqueness(ctx context.Context, username, email string) bool {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "CheckUniqueness", ctx, username)
+	ret := m.ctrl.Call(m, "CheckUniqueness", ctx, username, email)
 	ret0, _ := ret[0].(bool)
 	return ret0
 }
 
 // CheckUniqueness indicates an expected call of CheckUniqueness.
-func (mr *MockRepositoryMockRecorder) CheckUniqueness(ctx, username interface{}) *gomock.Call {
+func (mr *MockRepositoryMockRecorder) CheckUniqueness(ctx, username, email interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckUniqueness", reflect.TypeOf((*MockRepository)(nil).CheckUniqueness), ctx, username)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "CheckUniqueness", reflect.TypeOf((*MockRepository)(nil).CheckUniqueness), ctx, username, email)
 }
 
 // Create mocks base method.
@@ -151,9 +151,9 @@ func (mr *MockServiceMockRecorder) Login(ctx, username, password interface{}) *g
 }
 
 // RegisterUser mocks base method.
-func (m *MockService) RegisterUser(ctx context.Context, username, plainPassword string) (user.User, string, error) {
+func (m *MockService) RegisterUser(ctx context.Context, username, email, plainPassword string) (user.User, string, error) {
 	m.ctrl.T.Helper()
-	ret := m.ctrl.Call(m, "RegisterUser", ctx, username, plainPassword)
+	ret := m.ctrl.Call(m, "RegisterUser", ctx, username, email, plainPassword)
 	ret0, _ := ret[0].(user.User)
 	ret1, _ := ret[1].(string)
 	ret2, _ := ret[2].(error)
@@ -161,9 +161,9 @@ func (m *MockService) RegisterUser(ctx context.Context, username, plainPassword 
 }
 
 // RegisterUser indicates an expected call of RegisterUser.
-func (mr *MockServiceMockRecorder) RegisterUser(ctx, username, plainPassword interface{}) *gomock.Call {
+func (mr *MockServiceMockRecorder) RegisterUser(ctx, username, email, plainPassword interface{}) *gomock.Call {
 	mr.mock.ctrl.T.Helper()
-	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegisterUser", reflect.TypeOf((*MockService)(nil).RegisterUser), ctx, username, plainPassword)
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "RegisterUser", reflect.TypeOf((*MockService)(nil).RegisterUser), ctx, username, email, plainPassword)
 }
 
 // MockMongoCollection is a mock of MongoCollection interface.

@@ -24,16 +24,18 @@ func Test_service_RegisterUser(t *testing.T) {
 	passwordServiceMock := mockPassword.NewMockService(ctrl)
 
 	username := faker.Username()
-	password := "fakepassword"
+	password := faker.Password()
+	email := faker.Email()
 	jwt := faker.Jwt()
 	newUser := user.User{
+		Email:    email,
 		Username: username,
 		Password: password,
 	}
 
 	userRepositoryMock.
 		EXPECT().
-		CheckUniqueness(ctx, username).
+		CheckUniqueness(ctx, username, email).
 		Return(true).
 		Times(1)
 
@@ -59,7 +61,7 @@ func Test_service_RegisterUser(t *testing.T) {
 		Times(1)
 
 	service := user.NewService(userRepositoryMock, tokenServiceMock, passwordServiceMock)
-	_, _, err := service.RegisterUser(ctx, newUser.Username, newUser.Password)
+	_, _, err := service.RegisterUser(ctx, newUser.Username, newUser.Email, newUser.Password)
 	assert.NoError(t, err)
 
 }

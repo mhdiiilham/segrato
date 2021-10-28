@@ -31,30 +31,28 @@ func main() {
 		}
 	}()
 
-	mongoDBClient, err := realMain(ctx)
+	cfg, cfgErr := config.ReadConfig()
+	if cfgErr != nil {
+		panic(cfgErr)
+	}
+
+	mongoDB, err := db.NewMongoDBConnection(cfg.MongoDBURI)
+	if err != nil {
+		panic(err)
+	}
+
+	err = realMain(ctx, cfg, mongoDB.Database(cfg.Database).Collection("user"))
 	done()
 
 	if err != nil {
 		panic(err)
 	}
 
-	logrus.Infof("disconneting mongoDB Client %v", mongoDBClient.Disconnect(context.Background()))
+	logrus.Infof("disconneting mongoDB Client. Error: %v", mongoDB.Disconnect(context.Background()))
 	logrus.Info("successfully shutdown")
 }
 
-func realMain(ctx context.Context) (*mongo.Client, error) {
-	cfg, cfgErr := config.ReadConfig()
-	if cfgErr != nil {
-		return nil, cfgErr
-	}
-
-	mongoDB, err := db.NewMongoDBConnection(cfg.MongoDBURI)
-	if err != nil {
-		return nil, err
-	}
-
-	database := mongoDB.Database(cfg.Database)
-	userCollection := database.Collection("user")
+func realMain(ctx context.Context, cfg config.Config, userCollection *mongo.Collection) error {
 	userRepository := user.NewRepository(userCollection)
 	passwordService := password.NewService()
 
@@ -63,15 +61,15 @@ func realMain(ctx context.Context) (*mongo.Client, error) {
 
 	segratoAPI, err := auth.NewServer(cfg, userService)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	srv, err := server.New(cfg.Port.Auth)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	logrus.Infof("listening on: %v", cfg.Port.Auth)
-	return mongoDB, srv.ServeHTTPHandler(ctx, segratoAPI.Routes(ctx))
+	return srv.ServeHTTPHandler(ctx, segratoAPI.Routes(ctx))
 
 }

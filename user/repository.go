@@ -40,9 +40,12 @@ func (r repository) FindOne(ctx context.Context, username string) (user User, er
 	return
 }
 
-func (r repository) CheckUniqueness(ctx context.Context, username string) (unique bool) {
+func (r repository) CheckUniqueness(ctx context.Context, username, email string) (unique bool) {
 	unique = false
-	err := r.collection.FindOne(ctx, bson.M{"username": username}).Err()
+	err := r.collection.FindOne(ctx, bson.M{"$or": []bson.M{
+		bson.M{"username": username},
+		bson.M{"email": email},
+	}}).Err()
 	return err == mongo.ErrNoDocuments
 }
 

@@ -1,10 +1,12 @@
 package auth
 
 import (
+	"errors"
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/mhdiiilham/segrato/internal/auth/model"
+	"github.com/mhdiiilham/segrato/user"
 	"github.com/sirupsen/logrus"
 )
 
@@ -19,16 +21,16 @@ func (s *Server) RegisterUser(c *fiber.Ctx) error {
 		})
 	}
 
-	if len(payload.Password) < 8 || len(payload.Username) < 5 {
+	if len(payload.Password) < 8 || len(payload.Username) < 5 || payload.Email == "" {
 		return c.Status(http.StatusBadRequest).JSON(model.Error{
 			Code:    http.StatusBadRequest,
-			Message: "username and/or password invalid",
+			Message: "username, email and/or password invalid",
 		})
 	}
 
-	newUser, accessToken, err := s.userService.RegisterUser(c.Context(), payload.Username, payload.Password)
+	newUser, accessToken, err := s.userService.RegisterUser(c.Context(), payload.Username, payload.Email, payload.Password)
 	if err != nil {
-		if err.Error() == "username already taken" {
+		if errors.Is(err, user.ErrUsernameEmailRegistered) {
 			return c.Status(http.StatusBadRequest).JSON(model.Error{
 				Code:    http.StatusBadRequest,
 				Message: err.Error(),
