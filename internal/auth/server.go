@@ -9,7 +9,7 @@ import (
 	"github.com/gofiber/fiber/v2/middleware/cors"
 	"github.com/gofiber/fiber/v2/middleware/logger"
 	"github.com/mhdiiilham/segrato/config"
-	"github.com/mhdiiilham/segrato/user"
+	"github.com/mhdiiilham/segrato/internal/auth/model/user"
 	"github.com/sirupsen/logrus"
 )
 

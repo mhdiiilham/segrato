@@ -7,11 +7,11 @@ import (
 
 	"github.com/mhdiiilham/segrato/config"
 	"github.com/mhdiiilham/segrato/internal/auth"
+	"github.com/mhdiiilham/segrato/internal/auth/model/user"
 	"github.com/mhdiiilham/segrato/pkg/db"
 	"github.com/mhdiiilham/segrato/pkg/password"
 	"github.com/mhdiiilham/segrato/pkg/server"
 	"github.com/mhdiiilham/segrato/pkg/token"
-	"github.com/mhdiiilham/segrato/user"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo"
 )

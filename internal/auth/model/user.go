@@ -1,6 +1,6 @@
 package model
 
-import "github.com/mhdiiilham/segrato/user"
+import "github.com/mhdiiilham/segrato/internal/auth/model/user"
 
 type UserRegiserPayload struct {
 	Email    string `json:"email"`

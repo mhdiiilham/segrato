@@ -6,11 +6,11 @@ import (
 
 	"github.com/bxcodec/faker/v3"
 	"github.com/golang/mock/gomock"
+	"github.com/mhdiiilham/segrato/internal/auth/model/user"
+	mockUser "github.com/mhdiiilham/segrato/internal/auth/model/user/mock"
 	mockPassword "github.com/mhdiiilham/segrato/pkg/password/mock"
 	"github.com/mhdiiilham/segrato/pkg/token"
 	mockToken "github.com/mhdiiilham/segrato/pkg/token/mock"
-	"github.com/mhdiiilham/segrato/user"
-	mockUser "github.com/mhdiiilham/segrato/user/mock"
 	"github.com/stretchr/testify/assert"
 )
 

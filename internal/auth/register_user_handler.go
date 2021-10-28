@@ -6,7 +6,7 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 	"github.com/mhdiiilham/segrato/internal/auth/model"
-	"github.com/mhdiiilham/segrato/user"
+	"github.com/mhdiiilham/segrato/internal/auth/model/user"
 	"github.com/sirupsen/logrus"
 )
 
