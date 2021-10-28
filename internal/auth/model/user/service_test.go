@@ -2,6 +2,7 @@ package user_test
 
 import (
 	"context"
+	"errors"
 	"testing"
 
 	"github.com/bxcodec/faker/v3"
@@ -12,6 +13,7 @@ import (
 	"github.com/mhdiiilham/segrato/pkg/token"
 	mockToken "github.com/mhdiiilham/segrato/pkg/token/mock"
 	"github.com/stretchr/testify/assert"
+	"go.mongodb.org/mongo-driver/bson/primitive"
 )
 
 func Test_service_RegisterUser(t *testing.T) {
@@ -64,6 +66,127 @@ func Test_service_RegisterUser(t *testing.T) {
 		service := user.NewService(userRepositoryMock, tokenServiceMock, passwordServiceMock)
 		_, _, err := service.RegisterUser(ctx, newUser.Username, newUser.Email, newUser.Password)
 		assert.NoError(t, err)
+	})
+
+	t.Run("register user failed - email/username duplicate", func(t *testing.T) {
+		userRepositoryMock := mockUser.NewMockRepository(ctrl)
+		tokenServiceMock := mockToken.NewMockService(ctrl)
+		passwordServiceMock := mockPassword.NewMockService(ctrl)
+
+		email := faker.Email()
+		username := faker.Username()
+		passwd := faker.Password()
+
+		userRepositoryMock.
+			EXPECT().
+			CheckUniqueness(ctx, username, email).
+			Return(false).
+			Times(1)
+
+		expectedErr := user.ErrUsernameEmailRegistered
+		service := user.NewService(userRepositoryMock, tokenServiceMock, passwordServiceMock)
+		_, _, err := service.RegisterUser(ctx, username, email, passwd)
+		assert.True(t, errors.Is(err, expectedErr), "expecting error to be: '%s' but got: '%s' instead", expectedErr.Error(), err.Error())
+	})
+
+	t.Run("register user failed - hashing password failed", func(t *testing.T) {
+		userRepositoryMock := mockUser.NewMockRepository(ctrl)
+		tokenServiceMock := mockToken.NewMockService(ctrl)
+		passwordServiceMock := mockPassword.NewMockService(ctrl)
+
+		email := faker.Email()
+		username := faker.Username()
+		passwd := faker.Password()
+		expectedErr := errors.New("hashing password failed")
+
+		userRepositoryMock.
+			EXPECT().
+			CheckUniqueness(context.Background(), username, email).
+			Return(true).
+			Times(1)
+
+		passwordServiceMock.
+			EXPECT().
+			HashPassword(passwd).
+			Return(gomock.Any().String(), expectedErr).
+			Times(1)
+
+		service := user.NewService(userRepositoryMock, tokenServiceMock, passwordServiceMock)
+		_, _, err := service.RegisterUser(ctx, username, email, passwd)
+		assert.True(t, errors.Is(err, expectedErr), "expecting error to be: '%s' but got: '%s' instead", expectedErr.Error(), err.Error())
+	})
+
+	t.Run("register user failed - repository failed creating document", func(t *testing.T) {
+		userRepositoryMock := mockUser.NewMockRepository(ctrl)
+		tokenServiceMock := mockToken.NewMockService(ctrl)
+		passwordServiceMock := mockPassword.NewMockService(ctrl)
+
+		email := faker.Email()
+		username := faker.Username()
+		passwd := faker.Password()
+		expectedErr := errors.New("repository failed creating document")
+
+		userRepositoryMock.
+			EXPECT().
+			CheckUniqueness(context.Background(), username, email).
+			Return(true).
+			Times(1)
+
+		passwordServiceMock.
+			EXPECT().
+			HashPassword(passwd).
+			Return(passwd, nil).
+			Times(1)
+
+		userRepositoryMock.
+			EXPECT().
+			Create(context.Background(), user.User{Email: email, Username: username, Password: passwd}).
+			Return(user.User{}, expectedErr).
+			Times(1)
+
+		service := user.NewService(userRepositoryMock, tokenServiceMock, passwordServiceMock)
+		_, _, err := service.RegisterUser(ctx, username, email, passwd)
+		assert.True(t, errors.Is(err, expectedErr), "expecting error to be: '%s' but got: '%s' instead", expectedErr.Error(), err.Error())
+	})
+
+	t.Run("register user failed - failed generating access token", func(t *testing.T) {
+		userRepositoryMock := mockUser.NewMockRepository(ctrl)
+		tokenServiceMock := mockToken.NewMockService(ctrl)
+		passwordServiceMock := mockPassword.NewMockService(ctrl)
+
+		email := faker.Email()
+		username := faker.Username()
+		passwd := faker.Password()
+		expectedErr := errors.New("failed generating tokena")
+		objID := primitive.NewObjectID()
+
+		userRepositoryMock.
+			EXPECT().
+			CheckUniqueness(context.Background(), username, email).
+			Return(true).
+			Times(1)
+
+		passwordServiceMock.
+			EXPECT().
+			HashPassword(passwd).
+			Return(passwd, nil).
+			Times(1)
+
+		userRepositoryMock.
+			EXPECT().
+			Create(context.Background(), user.User{Email: email, Username: username, Password: passwd}).
+			Return(user.User{ID: objID, Email: email, Username: username, Password: passwd}, nil).
+			Times(1)
+
+		tokenServiceMock.
+			EXPECT().
+			SignPayload(token.TokenPayload{ID: objID.Hex(), Username: username}).
+			Return(gomock.Any().String(), expectedErr).
+			Times(1)
+
+		service := user.NewService(userRepositoryMock, tokenServiceMock, passwordServiceMock)
+		_, _, err := service.RegisterUser(ctx, username, email, passwd)
+		assert.True(t, errors.Is(err, expectedErr), "expecting error to be: '%s' but got: '%s' instead", expectedErr.Error(), err.Error())
 	})
 
 }
