@@ -22,6 +22,6 @@ mock-prepare:
 	go get -u github.com/bxcodec/faker/v3
 
 mock:
-	mockgen -source=pkg/password/interface.go -destination=mock/password/interface_mock.go -package=mock
-	mockgen -source=pkg/token/interface.go -destination=mock/token/token_interface_mock.go -package=mock
-	mockgen -source=user/interface.go -destination=mock/user/user_interface_mock.go -package=mock
+	mockgen -source=pkg/password/interface.go -destination=pkg/password/mock/interface_mock.go -package=mock
+	mockgen -source=pkg/token/interface.go -destination=pkg/token/mock/token_interface_mock.go -package=mock
+	mockgen -source=user/interface.go -destination=user/mock/user_interface_mock.go -package=mock

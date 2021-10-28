@@ -5,8 +5,8 @@ import (
 	"testing"
 
 	"github.com/golang/mock/gomock"
-	mock "github.com/mhdiiilham/segrato/mock/user"
 	"github.com/mhdiiilham/segrato/user"
+	mock "github.com/mhdiiilham/segrato/user/mock"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
