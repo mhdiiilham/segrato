@@ -231,7 +231,8 @@ func Test_service_GetUser(t *testing.T) {
 		userRepositoryMock.
 			EXPECT().
 			FindByID(ctx, objID.Hex()).
-			Return(resultUser, nil)
+			Return(resultUser, nil).
+			Times(1)
 
 		s := user.NewService(userRepositoryMock, tokenServiceMock, passwordServiceMock)
 		eUser, err := s.GetUser(ctx, objID.Hex())
@@ -239,5 +240,139 @@ func Test_service_GetUser(t *testing.T) {
 		assert.Equal(t, resultUser.ID, eUser.ID)
 		assert.Equal(t, resultUser.Email, eUser.Email)
 		assert.Equal(t, resultUser.Password, eUser.Password)
+	})
+}
+
+func Test_service_Login(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	t.Run("success login an user", func(t *testing.T) {
+		ctx := context.Background()
+		objID := primitive.NewObjectID()
+		username := faker.Username()
+		passwd := faker.Password()
+		hashedPassword := faker.Password()
+		jwtToken := faker.Jwt()
+
+		userRepositoryMock := mockUser.NewMockRepository(ctrl)
+		tokenServiceMock := mockToken.NewMockService(ctrl)
+		passwordServiceMock := mockPassword.NewMockService(ctrl)
+
+		userRepositoryMock.
+			EXPECT().
+			FindOne(ctx, username).
+			Return(user.User{Password: hashedPassword, ID: objID, Username: username, Email: faker.Email()}, nil).
+			Times(1)
+
+		passwordServiceMock.
+			EXPECT().
+			ComparePassword(hashedPassword, passwd).
+			Return(nil).
+			Times(1)
+
+		tokenServiceMock.
+			EXPECT().
+			SignPayload(token.TokenPayload{
+				ID:       objID.Hex(),
+				Username: username,
+			}).Return(jwtToken, nil)
+
+		s := user.NewService(userRepositoryMock, tokenServiceMock, passwordServiceMock)
+		rUser, at, err := s.Login(ctx, username, passwd)
+		assert.Nil(t, err)
+		assert.Equal(t, username, rUser.Username)
+		assert.Equal(t, jwtToken, at)
+	})
+
+	t.Run("login an user failed - user not foud", func(t *testing.T) {
+		ctx := context.Background()
+		username := faker.Username()
+		passwd := faker.Password()
+		expectedErr := user.ErrInvalidUsernamePassword
+
+		userRepositoryMock := mockUser.NewMockRepository(ctrl)
+		tokenServiceMock := mockToken.NewMockService(ctrl)
+		passwordServiceMock := mockPassword.NewMockService(ctrl)
+
+		userRepositoryMock.
+			EXPECT().
+			FindOne(ctx, username).
+			Return(user.User{}, expectedErr).
+			Times(1)
+
+		s := user.NewService(userRepositoryMock, tokenServiceMock, passwordServiceMock)
+		_, _, err := s.Login(ctx, username, passwd)
+		assert.True(t, errors.Is(err, expectedErr))
+	})
+
+	t.Run("login an user failed - password wrong", func(t *testing.T) {
+		ctx := context.Background()
+		objID := primitive.NewObjectID()
+		username := faker.Username()
+		passwd := faker.Password()
+		hashedPassword := faker.Password()
+		expectedErr := user.ErrInvalidUsernamePassword
+
+		userRepositoryMock := mockUser.NewMockRepository(ctrl)
+		tokenServiceMock := mockToken.NewMockService(ctrl)
+		passwordServiceMock := mockPassword.NewMockService(ctrl)
+
+		userRepositoryMock.
+			EXPECT().
+			FindOne(ctx, username).
+			Return(user.User{
+				ID:       objID,
+				Password: hashedPassword,
+				Email:    username,
+			}, nil).
+			Times(1)
+
+		passwordServiceMock.
+			EXPECT().
+			ComparePassword(hashedPassword, passwd).
+			Return(expectedErr).
+			Times(1)
+
+		s := user.NewService(userRepositoryMock, tokenServiceMock, passwordServiceMock)
+		_, _, err := s.Login(ctx, username, passwd)
+		assert.True(t, errors.Is(err, expectedErr))
+	})
+
+	t.Run("login an user - failed generating access token", func(t *testing.T) {
+		ctx := context.Background()
+		objID := primitive.NewObjectID()
+		username := faker.Username()
+		passwd := faker.Password()
+		hashedPassword := faker.Password()
+		expectedErr := errors.New("something")
+
+		userRepositoryMock := mockUser.NewMockRepository(ctrl)
+		tokenServiceMock := mockToken.NewMockService(ctrl)
+		passwordServiceMock := mockPassword.NewMockService(ctrl)
+
+		userRepositoryMock.
+			EXPECT().
+			FindOne(ctx, username).
+			Return(user.User{Password: hashedPassword, ID: objID, Username: username, Email: faker.Email()}, nil).
+			Times(1)
+
+		passwordServiceMock.
+			EXPECT().
+			ComparePassword(hashedPassword, passwd).
+			Return(nil).
+			Times(1)
+
+		tokenServiceMock.
+			EXPECT().
+			SignPayload(token.TokenPayload{
+				ID:       objID.Hex(),
+				Username: username,
+			}).Return(gomock.Any().String(), expectedErr)
+
+		s := user.NewService(userRepositoryMock, tokenServiceMock, passwordServiceMock)
+		_, _, err := s.Login(ctx, username, passwd)
+		assert.NotNil(t, err)
+		assert.True(t, errors.Is(err, expectedErr))
 	})
 }

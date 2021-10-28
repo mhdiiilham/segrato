@@ -5,7 +5,6 @@ import (
 
 	"github.com/mhdiiilham/segrato/pkg/password"
 	"github.com/mhdiiilham/segrato/pkg/token"
-	"golang.org/x/crypto/bcrypt"
 )
 
 type service struct {
@@ -65,10 +64,11 @@ func (s *service) GetUser(ctx context.Context, userID string) (u User, err error
 func (s *service) Login(ctx context.Context, username, password string) (user User, accessToken string, err error) {
 	user, err = s.userRepository.FindOne(ctx, username)
 	if err != nil {
+		err = ErrInvalidUsernamePassword
 		return
 	}
 
-	if err = bcrypt.CompareHashAndPassword([]byte(user.Password), []byte(password)); err != nil {
+	if err = s.p.ComparePassword(user.Password, password); err != nil {
 		err = ErrInvalidUsernamePassword
 		return
 	}
