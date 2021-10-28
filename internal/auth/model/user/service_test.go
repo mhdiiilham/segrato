@@ -3,6 +3,7 @@ package user_test
 import (
 	"context"
 	"errors"
+	"fmt"
 	"testing"
 
 	"github.com/bxcodec/faker/v3"
@@ -14,6 +15,7 @@ import (
 	mockToken "github.com/mhdiiilham/segrato/pkg/token/mock"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
+	"go.mongodb.org/mongo-driver/mongo"
 )
 
 func Test_service_RegisterUser(t *testing.T) {
@@ -189,4 +191,53 @@ func Test_service_RegisterUser(t *testing.T) {
 		assert.True(t, errors.Is(err, expectedErr), "expecting error to be: '%s' but got: '%s' instead", expectedErr.Error(), err.Error())
 	})
 
+}
+
+func Test_service_GetUser(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	t.Run("failed get user", func(t *testing.T) {
+		userRepositoryMock := mockUser.NewMockRepository(ctrl)
+		tokenServiceMock := mockToken.NewMockService(ctrl)
+		passwordServiceMock := mockPassword.NewMockService(ctrl)
+
+		ctx := context.Background()
+		objID := primitive.NewObjectID()
+		expectedErr := mongo.ErrNoDocuments
+
+		userRepositoryMock.
+			EXPECT().
+			FindByID(ctx, objID.Hex()).
+			Return(user.User{}, mongo.ErrNoDocuments)
+
+		s := user.NewService(userRepositoryMock, tokenServiceMock, passwordServiceMock)
+		_, err := s.GetUser(ctx, objID.Hex())
+		assert.True(t, errors.Is(err, expectedErr), fmt.Sprintf(`expecting error to be: "%s", but got: "%s"`, expectedErr.Error(), err.Error()))
+
+	})
+
+	t.Run("success get user", func(t *testing.T) {
+		userRepositoryMock := mockUser.NewMockRepository(ctrl)
+		tokenServiceMock := mockToken.NewMockService(ctrl)
+		passwordServiceMock := mockPassword.NewMockService(ctrl)
+
+		ctx := context.Background()
+		objID := primitive.NewObjectID()
+		uname := faker.Username()
+		passwd := faker.Password()
+		resultUser := user.User{ID: objID, Username: uname, Password: passwd}
+
+		userRepositoryMock.
+			EXPECT().
+			FindByID(ctx, objID.Hex()).
+			Return(resultUser, nil)
+
+		s := user.NewService(userRepositoryMock, tokenServiceMock, passwordServiceMock)
+		eUser, err := s.GetUser(ctx, objID.Hex())
+		assert.Nil(t, err, "expecting err to be nill")
+		assert.Equal(t, resultUser.ID, eUser.ID)
+		assert.Equal(t, resultUser.Email, eUser.Email)
+		assert.Equal(t, resultUser.Password, eUser.Password)
+	})
 }
