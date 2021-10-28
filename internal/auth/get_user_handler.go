@@ -5,7 +5,7 @@ import (
 	"net/http"
 
 	"github.com/gofiber/fiber/v2"
-	"github.com/mhdiiilham/segrato/internal/auth/model"
+	"github.com/mhdiiilham/segrato/internal/apiresponse"
 	"go.mongodb.org/mongo-driver/mongo"
 )
 
@@ -14,7 +14,7 @@ func (s *Server) GetUser(c *fiber.Ctx) error {
 	user, err := s.userService.GetUser(c.Context(), userID)
 	if err != nil {
 		if errors.Is(err, mongo.ErrNoDocuments) {
-			return c.Status(http.StatusNotFound).JSON(model.Error{
+			return c.Status(http.StatusNotFound).JSON(apiresponse.Error{
 				Code:    http.StatusNotFound,
 				Message: "user not found",
 			})
