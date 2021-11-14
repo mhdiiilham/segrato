@@ -10,6 +10,7 @@ import (
 	"time"
 
 	"github.com/sirupsen/logrus"
+	"google.golang.org/grpc"
 )
 
 type server struct {
@@ -63,4 +64,31 @@ func (s *server) ServeHTTPHandler(ctx context.Context, handler http.Handler) err
 	return s.ServeHTTP(ctx, &http.Server{
 		Handler: handler,
 	})
+}
+
+func (s *server) ServeGRPC(ctx context.Context, srv *grpc.Server) error {
+
+	// Spawn a goroutine that listens for context closure. When the context is
+	// closed, the server is stopped.
+	errChan := make(chan error, 1)
+	go func() {
+		<-ctx.Done()
+
+		logrus.Info("server.Server: context closed")
+		logrus.Info("server.Server: shutting down")
+		srv.GracefulStop()
+	}()
+
+	if err := srv.Serve(s.listener); err != nil && !errors.Is(err, grpc.ErrServerStopped) {
+		return errors.New(fmt.Sprintf("failed to serve: %v", err))
+	}
+
+	logrus.Info("server.Server: serving stopped")
+
+	select {
+	case err := <-errChan:
+		return errors.New(fmt.Sprintf("failed to shutdown: %v", err))
+	default:
+		return nil
+	}
 }
