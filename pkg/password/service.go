@@ -23,5 +23,5 @@ func (s *service) HashPassword(password string) (string, error) {
 }
 
 func (s *service) ComparePassword(hashedPassword, password string) error {
-	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(hashedPassword))
+	return bcrypt.CompareHashAndPassword([]byte(hashedPassword), []byte(password))
 }
