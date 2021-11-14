@@ -7,13 +7,16 @@ import (
 
 	"github.com/mhdiiilham/segrato/config"
 	"github.com/mhdiiilham/segrato/internal/auth"
+	"github.com/mhdiiilham/segrato/internal/auth/model/proto"
 	"github.com/mhdiiilham/segrato/internal/auth/model/user"
+	"github.com/mhdiiilham/segrato/internal/auth/repository"
 	"github.com/mhdiiilham/segrato/pkg/db"
 	"github.com/mhdiiilham/segrato/pkg/password"
 	"github.com/mhdiiilham/segrato/pkg/server"
 	"github.com/mhdiiilham/segrato/pkg/token"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo"
+	"google.golang.org/grpc"
 )
 
 func main() {
@@ -53,23 +56,22 @@ func main() {
 }
 
 func realMain(ctx context.Context, cfg config.Config, userCollection *mongo.Collection) error {
-	userRepository := user.NewRepository(userCollection)
+	userRepository := repository.NewUserRepository(userCollection)
 	passwordService := password.NewService()
 
 	tokenService := token.TokenService{Config: &cfg}
 	userService := user.NewService(userRepository, tokenService, passwordService)
 
-	segratoAPI, err := auth.NewServer(cfg, userService)
-	if err != nil {
-		return err
-	}
+	authServer := auth.NewServer(cfg, userService)
+
+	gRPCServer := grpc.NewServer()
+	proto.RegisterAuthServiceServer(gRPCServer, authServer)
 
 	srv, err := server.New(cfg.Port.Auth)
 	if err != nil {
 		return err
 	}
 
-	logrus.Infof("listening on: %v", cfg.Port.Auth)
-	return srv.ServeHTTPHandler(ctx, segratoAPI.Routes(ctx))
-
+	logrus.Infof("listening on: %s", cfg.Port.Auth)
+	return srv.ServeGRPC(ctx, gRPCServer)
 }
