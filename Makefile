@@ -1,4 +1,4 @@
-.PHONY: all auth game tidy test mock-prepare mock
+.PHONY: all auth game tidy test mock-prepare mock proto
 
 build:
 	go build -o auth-service cmd/auth/main.go
@@ -25,3 +25,6 @@ mock:
 	mockgen -source=pkg/password/interface.go -destination=pkg/password/mock/interface_mock.go -package=mock
 	mockgen -source=pkg/token/interface.go -destination=pkg/token/mock/token_interface_mock.go -package=mock
 	mockgen -source=internal/auth/model/user/interface.go -destination=internal/auth/model/user/mock/user_interface_mock.go -package=mock
+
+proto:
+	protoc proto/auth.proto --go_out=plugins=grpc:.

@@ -1,0 +1,48 @@
+syntax = "proto3";
+
+package auth;
+
+option go_package = "internal/auth/model/proto";
+
+message User {
+    string id = 1;
+    string username = 2;
+    string email = 3;
+}
+
+message RegisterUserRequest {
+    string username = 1;
+    string email = 2;
+    string password = 3;
+}
+
+message RegisterUserResponse {
+    string id = 1;
+    User user = 2;
+    string accessToken = 3;
+}
+
+message GetUserRequest {
+    string userId = 1;
+}
+
+message GetUserResponse {
+    string code = 1;
+    User user = 2;
+}
+
+message LoginRequest {
+    string username = 1;
+    string password = 2;
+}
+
+message LoginResponse {
+    string id = 1;
+    string accessToken = 2;
+}
+
+service AuthService {
+    rpc RegisterUser (RegisterUserRequest) returns (RegisterUserResponse) {};
+    rpc GetUser(GetUserRequest) returns (GetUserResponse) {};
+    rpc Login(LoginRequest) returns (LoginResponse) {};
+}
