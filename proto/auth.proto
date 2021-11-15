@@ -41,8 +41,17 @@ message LoginResponse {
     string accessToken = 2;
 }
 
+message GetUserByAccessTokenRequest {
+    string accessToken = 1;
+}
+
+message GetUserByAccessTokenResponse {
+    User user = 1;
+}
+
 service AuthService {
     rpc RegisterUser (RegisterUserRequest) returns (RegisterUserResponse) {};
     rpc GetUser(GetUserRequest) returns (GetUserResponse) {};
     rpc Login(LoginRequest) returns (LoginResponse) {};
+    rpc GetUserByAccessToken(GetUserByAccessTokenRequest) returns (GetUserByAccessTokenResponse) {}; 
 }
