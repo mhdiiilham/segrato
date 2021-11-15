@@ -134,6 +134,21 @@ func (mr *MockServiceMockRecorder) GetUser(ctx, id interface{}) *gomock.Call {
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUser", reflect.TypeOf((*MockService)(nil).GetUser), ctx, id)
 }
 
+// GetUserByAccessToken mocks base method.
+func (m *MockService) GetUserByAccessToken(ctx context.Context, accessToken string) (user.User, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "GetUserByAccessToken", ctx, accessToken)
+	ret0, _ := ret[0].(user.User)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// GetUserByAccessToken indicates an expected call of GetUserByAccessToken.
+func (mr *MockServiceMockRecorder) GetUserByAccessToken(ctx, accessToken interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "GetUserByAccessToken", reflect.TypeOf((*MockService)(nil).GetUserByAccessToken), ctx, accessToken)
+}
+
 // Login mocks base method.
 func (m *MockService) Login(ctx context.Context, username, password string) (user.User, string, error) {
 	m.ctrl.T.Helper()

@@ -34,6 +34,21 @@ func (m *MockService) EXPECT() *MockServiceMockRecorder {
 	return m.recorder
 }
 
+// ExtractToken mocks base method.
+func (m *MockService) ExtractToken(accessToken string) (token.TokenPayload, error) {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "ExtractToken", accessToken)
+	ret0, _ := ret[0].(token.TokenPayload)
+	ret1, _ := ret[1].(error)
+	return ret0, ret1
+}
+
+// ExtractToken indicates an expected call of ExtractToken.
+func (mr *MockServiceMockRecorder) ExtractToken(accessToken interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "ExtractToken", reflect.TypeOf((*MockService)(nil).ExtractToken), accessToken)
+}
+
 // SignPayload mocks base method.
 func (m *MockService) SignPayload(payload token.TokenPayload) (string, error) {
 	m.ctrl.T.Helper()

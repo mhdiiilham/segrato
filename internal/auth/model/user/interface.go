@@ -18,6 +18,7 @@ type Service interface {
 	RegisterUser(ctx context.Context, username, email, plainPassword string) (user User, accessToken string, err error)
 	GetUser(ctx context.Context, id string) (user User, err error)
 	Login(ctx context.Context, username, password string) (user User, accessToken string, err error)
+	GetUserByAccessToken(ctx context.Context, accessToken string) (u User, err error)
 }
 
 type MongoCollection interface {

@@ -9,13 +9,16 @@ import (
 	"github.com/bxcodec/faker/v3"
 	"github.com/golang/mock/gomock"
 	"github.com/mhdiiilham/segrato/internal/auth/model/user"
+	"github.com/mhdiiilham/segrato/internal/auth/model/user/mock"
 	mockUser "github.com/mhdiiilham/segrato/internal/auth/model/user/mock"
 	mockPassword "github.com/mhdiiilham/segrato/pkg/password/mock"
 	"github.com/mhdiiilham/segrato/pkg/token"
 	mockToken "github.com/mhdiiilham/segrato/pkg/token/mock"
+	"github.com/o1egl/paseto"
 	"github.com/stretchr/testify/assert"
 	"go.mongodb.org/mongo-driver/bson/primitive"
 	"go.mongodb.org/mongo-driver/mongo"
+	"gopkg.in/mgo.v2/bson"
 )
 
 func Test_service_RegisterUser(t *testing.T) {
@@ -374,5 +377,125 @@ func Test_service_Login(t *testing.T) {
 		_, _, err := s.Login(ctx, username, passwd)
 		assert.NotNil(t, err)
 		assert.True(t, errors.Is(err, expectedErr))
+	})
+}
+
+func Test_service_GetUserByAccessToken(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	t.Run("access token is empty string", func(t *testing.T) {
+		t.Parallel()
+
+		expectedErr := user.ErrAccessTokenInvalid
+
+		ctx := context.Background()
+		userRepository := mock.NewMockRepository(ctrl)
+		tokenService := mockToken.NewMockService(ctrl)
+		password := mockPassword.NewMockService(ctrl)
+		service := user.NewService(userRepository, tokenService, password)
+
+		u, err := service.GetUserByAccessToken(ctx, "")
+		assert.Error(t, err)
+		assert.NotNil(t, u)
+		assert.ErrorIs(t, expectedErr, err)
+	})
+
+	t.Run("access token not valid", func(t *testing.T) {
+		t.Parallel()
+
+		expectedErr := paseto.ErrIncorrectTokenFormat
+		at := faker.Jwt()
+
+		ctx := context.Background()
+		userRepository := mock.NewMockRepository(ctrl)
+		tokenService := mockToken.NewMockService(ctrl)
+		password := mockPassword.NewMockService(ctrl)
+
+		tokenService.
+			EXPECT().
+			ExtractToken(at).
+			Return(token.TokenPayload{}, expectedErr).
+			Times(1)
+
+		service := user.NewService(userRepository, tokenService, password)
+		u, err := service.GetUserByAccessToken(ctx, at)
+		assert.Error(t, err)
+		assert.NotNil(t, u)
+		assert.ErrorIs(t, expectedErr, err)
+	})
+
+	t.Run("user not found", func(t *testing.T) {
+		t.Parallel()
+
+		expectedErr := user.ErrAccessTokenInvalid
+		at := faker.Jwt()
+		id := bson.NewObjectId().Hex()
+		username := faker.Username()
+
+		ctx := context.Background()
+		userRepository := mock.NewMockRepository(ctrl)
+		tokenService := mockToken.NewMockService(ctrl)
+		password := mockPassword.NewMockService(ctrl)
+
+		tokenService.
+			EXPECT().
+			ExtractToken(at).
+			Return(token.TokenPayload{
+				ID:       id,
+				Username: username,
+			}, nil).Times(1)
+
+		userRepository.
+			EXPECT().
+			FindByID(ctx, id).
+			Return(user.User{}, mongo.ErrNoDocuments).
+			Times(1)
+
+		service := user.NewService(userRepository, tokenService, password)
+		u, err := service.GetUserByAccessToken(ctx, at)
+		assert.Error(t, err)
+		assert.NotNil(t, u)
+		assert.ErrorIs(t, expectedErr, err)
+	})
+
+	t.Run("user found", func(t *testing.T) {
+		t.Parallel()
+
+		at := faker.Jwt()
+		id := primitive.NewObjectID()
+		username := faker.Username()
+		email := faker.Email()
+
+		ctx := context.Background()
+		userRepository := mock.NewMockRepository(ctrl)
+		tokenService := mockToken.NewMockService(ctrl)
+		password := mockPassword.NewMockService(ctrl)
+
+		tokenService.
+			EXPECT().
+			ExtractToken(at).
+			Return(token.TokenPayload{
+				ID:       id.Hex(),
+				Username: username,
+			}, nil).Times(1)
+
+		userRepository.
+			EXPECT().
+			FindByID(ctx, id.Hex()).
+			Return(user.User{
+				ID:       id,
+				Username: username,
+				Email:    email,
+			}, nil).
+			Times(1)
+
+		service := user.NewService(userRepository, tokenService, password)
+		u, err := service.GetUserByAccessToken(ctx, at)
+		assert.Nil(t, err)
+		assert.NotNil(t, u)
+		assert.Equal(t, username, u.Username)
+		assert.Equal(t, id.Hex(), u.ID.Hex())
+		assert.Equal(t, email, u.Email)
 	})
 }

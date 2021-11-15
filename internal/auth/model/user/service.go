@@ -80,3 +80,24 @@ func (s *service) Login(ctx context.Context, username, password string) (user Us
 
 	return
 }
+
+func (s *service) GetUserByAccessToken(ctx context.Context, accessToken string) (u User, err error) {
+	var payload token.TokenPayload
+	if accessToken == "" {
+		err = ErrAccessTokenInvalid
+		return
+	}
+
+	payload, err = s.token.ExtractToken(accessToken)
+	if err != nil {
+		return
+	}
+
+	u, err = s.userRepository.FindByID(ctx, payload.ID)
+	if err != nil {
+		err = ErrAccessTokenInvalid
+		return
+	}
+
+	return
+}

@@ -16,4 +16,5 @@ type User struct {
 var (
 	ErrInvalidUsernamePassword error = errors.New("username or password is wrong")
 	ErrUsernameEmailRegistered error = errors.New("username or email already registered")
+	ErrAccessTokenInvalid      error = errors.New("access token not valid")
 )

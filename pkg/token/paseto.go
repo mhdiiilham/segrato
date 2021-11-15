@@ -21,3 +21,10 @@ func (t TokenService) SignPayload(payload TokenPayload) (accessToken string, err
 	}
 	return
 }
+
+func (t TokenService) ExtractToken(accessToken string) (payload TokenPayload, err error) {
+	if err = paseto.NewV2().Decrypt(accessToken, []byte(t.Config.PasetoSymmetricKey), &payload, "footer"); err != nil {
+		return
+	}
+	return
+}
