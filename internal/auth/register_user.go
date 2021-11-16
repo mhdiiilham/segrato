@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	"github.com/mhdiiilham/segrato/internal/auth/model/proto"
 	"github.com/mhdiiilham/segrato/internal/auth/model/user"
+	"github.com/mhdiiilham/segrato/internal/proto"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
 )

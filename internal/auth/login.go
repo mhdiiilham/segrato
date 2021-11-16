@@ -4,8 +4,8 @@ import (
 	"context"
 	"errors"
 
-	"github.com/mhdiiilham/segrato/internal/auth/model/proto"
 	"github.com/mhdiiilham/segrato/internal/auth/model/user"
+	"github.com/mhdiiilham/segrato/internal/proto"
 	"github.com/sirupsen/logrus"
 	"go.mongodb.org/mongo-driver/mongo"
 	"google.golang.org/grpc/codes"

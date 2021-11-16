@@ -4,7 +4,7 @@ import "google/protobuf/empty.proto";
 
 package auth;
 
-option go_package = "internal/auth/model/proto";
+option go_package = "internal/proto";
 
 message User {
     string id = 1;

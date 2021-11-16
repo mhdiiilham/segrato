@@ -7,9 +7,9 @@ import (
 
 	"github.com/mhdiiilham/segrato/config"
 	"github.com/mhdiiilham/segrato/internal/auth"
-	"github.com/mhdiiilham/segrato/internal/auth/model/proto"
 	"github.com/mhdiiilham/segrato/internal/auth/model/user"
 	"github.com/mhdiiilham/segrato/internal/auth/repository"
+	"github.com/mhdiiilham/segrato/internal/proto"
 	"github.com/mhdiiilham/segrato/pkg/db"
 	"github.com/mhdiiilham/segrato/pkg/password"
 	"github.com/mhdiiilham/segrato/pkg/server"
