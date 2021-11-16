@@ -8,17 +8,20 @@ import (
 	"github.com/gorilla/handlers"
 	"github.com/gorilla/mux"
 	"github.com/mhdiiilham/segrato/config"
+	"github.com/mhdiiilham/segrato/internal/proto"
 	"github.com/rs/cors"
 	"github.com/sirupsen/logrus"
 )
 
 type server struct {
-	cfg config.Config
+	cfg     config.Config
+	authAPI proto.AuthServiceClient
 }
 
-func NewServer(cfg config.Config) (*server, error) {
+func NewServer(cfg config.Config, authAPI proto.AuthServiceClient) (*server, error) {
 	return &server{
-		cfg: cfg,
+		cfg:     cfg,
+		authAPI: authAPI,
 	}, nil
 }
 
