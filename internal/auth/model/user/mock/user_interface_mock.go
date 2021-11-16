@@ -179,6 +179,20 @@ func (mr *MockServiceMockRecorder) Login(ctx, username, password interface{}) *g
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "Login", reflect.TypeOf((*MockService)(nil).Login), ctx, username, password)
 }
 
+// PingMongoDB mocks base method.
+func (m *MockService) PingMongoDB(ctx context.Context) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "PingMongoDB", ctx)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// PingMongoDB indicates an expected call of PingMongoDB.
+func (mr *MockServiceMockRecorder) PingMongoDB(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PingMongoDB", reflect.TypeOf((*MockService)(nil).PingMongoDB), ctx)
+}
+
 // RegisterUser mocks base method.
 func (m *MockService) RegisterUser(ctx context.Context, username, email, plainPassword string) (user.User, string, error) {
 	m.ctrl.T.Helper()

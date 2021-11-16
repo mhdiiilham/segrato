@@ -1,5 +1,7 @@
 syntax = "proto3";
 
+import "google/protobuf/empty.proto";
+
 package auth;
 
 option go_package = "internal/auth/model/proto";
@@ -49,9 +51,16 @@ message GetUserByAccessTokenResponse {
     User user = 1;
 }
 
+message HealthCheckResponse {
+    bool serverRunning = 1;
+    bool mongoDBConnection = 2;
+}
+
 service AuthService {
     rpc RegisterUser (RegisterUserRequest) returns (RegisterUserResponse) {};
     rpc GetUser(GetUserRequest) returns (GetUserResponse) {};
     rpc Login(LoginRequest) returns (LoginResponse) {};
-    rpc GetUserByAccessToken(GetUserByAccessTokenRequest) returns (GetUserByAccessTokenResponse) {}; 
+    rpc GetUserByAccessToken(GetUserByAccessTokenRequest) returns (GetUserByAccessTokenResponse) {};
+
+    rpc HealthCheck(google.protobuf.Empty) returns (HealthCheckResponse) {}
 }

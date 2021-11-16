@@ -59,3 +59,7 @@ func (r repository) FindByID(ctx context.Context, id string) (user user.User, er
 
 	return
 }
+
+func (r repository) PingMongoDB(ctx context.Context) error {
+	return r.collection.Database().Client().Ping(ctx, nil)
+}
