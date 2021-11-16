@@ -101,3 +101,7 @@ func (s *service) GetUserByAccessToken(ctx context.Context, accessToken string) 
 
 	return
 }
+
+func (s *service) PingMongoDB(ctx context.Context) error {
+	return s.userRepository.PingMongoDB(ctx)
+}

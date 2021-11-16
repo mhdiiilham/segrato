@@ -96,6 +96,20 @@ func (mr *MockRepositoryMockRecorder) FindOne(ctx, username interface{}) *gomock
 	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "FindOne", reflect.TypeOf((*MockRepository)(nil).FindOne), ctx, username)
 }
 
+// PingMongoDB mocks base method.
+func (m *MockRepository) PingMongoDB(ctx context.Context) error {
+	m.ctrl.T.Helper()
+	ret := m.ctrl.Call(m, "PingMongoDB", ctx)
+	ret0, _ := ret[0].(error)
+	return ret0
+}
+
+// PingMongoDB indicates an expected call of PingMongoDB.
+func (mr *MockRepositoryMockRecorder) PingMongoDB(ctx interface{}) *gomock.Call {
+	mr.mock.ctrl.T.Helper()
+	return mr.mock.ctrl.RecordCallWithMethodType(mr.mock, "PingMongoDB", reflect.TypeOf((*MockRepository)(nil).PingMongoDB), ctx)
+}
+
 // MockService is a mock of Service interface.
 type MockService struct {
 	ctrl     *gomock.Controller

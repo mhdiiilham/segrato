@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"testing"
+	"time"
 
 	"github.com/bxcodec/faker/v3"
 	"github.com/golang/mock/gomock"
@@ -498,4 +499,27 @@ func Test_service_GetUserByAccessToken(t *testing.T) {
 		assert.Equal(t, id.Hex(), u.ID.Hex())
 		assert.Equal(t, email, u.Email)
 	})
+}
+
+func Test_service_PingMongoDB(t *testing.T) {
+	ctrl := gomock.NewController(t)
+	defer ctrl.Finish()
+
+	ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+	defer cancel()
+
+	userRepository := mock.NewMockRepository(ctrl)
+	tokenService := mockToken.NewMockService(ctrl)
+	passwordService := mockPassword.NewMockService(ctrl)
+
+	userRepository.
+		EXPECT().
+		PingMongoDB(ctx).
+		Return(nil).
+		Times(1)
+
+	service := user.NewService(userRepository, tokenService, passwordService)
+
+	err := service.PingMongoDB(ctx)
+	assert.Nil(t, err)
 }

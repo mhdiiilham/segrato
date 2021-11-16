@@ -12,6 +12,7 @@ type Repository interface {
 	FindOne(ctx context.Context, username string) (user User, err error)
 	FindByID(ctx context.Context, id string) (user User, err error)
 	CheckUniqueness(ctx context.Context, username, email string) (unique bool)
+	PingMongoDB(ctx context.Context) error
 }
 
 type Service interface {
@@ -19,6 +20,7 @@ type Service interface {
 	GetUser(ctx context.Context, id string) (user User, err error)
 	Login(ctx context.Context, username, password string) (user User, accessToken string, err error)
 	GetUserByAccessToken(ctx context.Context, accessToken string) (u User, err error)
+	PingMongoDB(ctx context.Context) error
 }
 
 type MongoCollection interface {
